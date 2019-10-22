@@ -2,15 +2,15 @@
 #include <stdio.h>
 #include <iostream>
 
+#include <string.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
 #include <switch.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
-
-#ifdef DEBUG
-    #include <twili.h>
-#endif
 
 extern "C" {
     #include "common.h"
@@ -51,14 +51,20 @@ void Term_Services() {
     SDL_Quit();
 
     #ifdef DEBUG
-        twiliExit();
+        socketExit();
     #endif
 }
 
 void Init_Services() {
     #ifdef DEBUG
-        twiliInitialize();
+        socketInitializeDefault();
+        nxlinkStdio();
     #endif
+    
+        // Initialise sockets
+
+
+    printf("TESTE");
 
     std::cout << "Initalize Serices" << std::endl;
 
@@ -118,8 +124,13 @@ void Init_Services() {
     }
     std::cout << "Initalized Input" << std::endl;
 
-    FS_RecursiveMakeDir("/switch/eBookReader/books");
-    std::cout << "Created book directory if needed" << std::endl;
+	if (FS_DirExists("/switch/eBookReader/books")) {
+		std::cout << "Book directory already exists" << std::endl;
+	}
+	else {
+		FS_RecursiveMakeDir("/switch/eBookReader/books");
+		std::cout << "Book directory (/switch/eBookReader/books) not found, creating..." << std::endl;
+	}
 
     configDarkMode = true;
 }
@@ -132,5 +143,6 @@ int main(int argc, char *argv[]) {
     }
 
     Term_Services();
+
     return 0;
 }
