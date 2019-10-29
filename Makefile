@@ -9,8 +9,6 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
 
-TOOL_PREFIX := aarch64-none-elf-
-
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -190,26 +188,7 @@ mupdf-clean:
 
 #---------------------------------------------------------------------------------
 mupdf:
-	@echo Building mupdf ...
-	@sh /opt/devkitpro/switchvars.sh
-	$(MAKE) -e -C $(CURDIR)/mupdf \
-CC=$(TOOL_PREFIX)gcc \
-CXX=$(TOOL_PREFIX)g++ \
-LD=$(TOOL_PREFIX)ld \
-AR=$(TOOL_PREFIX)ar \
-RANLIB=$(TOOL_PREFIX)ranlib \
-"USE_SYSTEM_FREETYPE=yes \
-USE_SYSTEM_HARFBUZZ=no \
-USE_SYSTEM_JBIG2DEC=no \
-USE_SYSTEM_JPEGXR=no \
-USE_SYSTEM_LCMS2=no \
-USE_SYSTEM_LIBJPEG=yes \
-USE_SYSTEM_MUJS=no \
-USE_SYSTEM_OPENJPEG=no \
-USE_SYSTEM_ZLIB=no" \
-libs
-	@mkdir -p mupdf/lib
-	@cp -f mupdf/build/release/*.a mupdf/lib
+	@$(MAKE) -f $(CURDIR)/Makefile.mupdf
 
 #---------------------------------------------------------------------------------
 else
