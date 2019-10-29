@@ -18,6 +18,7 @@ extern "C" {
     #include "MenuChooser.h"
     #include "fs.h"
     #include "config.h"
+    #include "log.h"
 }
 
 SDL_Renderer* RENDERER;
@@ -28,7 +29,7 @@ bool configDarkMode;
 bool run = true;
 
 void Term_Services() {
-    std::cout << "Terminate Serices" << std::endl;
+    std::cout << "Terminate Services" << std::endl;
     run = false;
 
     timeExit();
@@ -56,17 +57,13 @@ void Term_Services() {
 }
 
 void Init_Services() {
-    #ifdef DEBUG
+    #ifdef DEBUG    
+        // Initialise sockets
         socketInitializeDefault();
         nxlinkStdio();
     #endif
-    
-        // Initialise sockets
 
-
-    printf("TESTE");
-
-    std::cout << "Initalize Serices" << std::endl;
+    std::cout << "Initalize Services" << std::endl;
 
     romfsInit();
     std::cout << "Initalized RomFs" << std::endl;
@@ -136,13 +133,20 @@ void Init_Services() {
 }
 
 int main(int argc, char *argv[]) {
+    FILE *logfile;
+	logfile = fopen("/switch/eBookReader/eBookReaderSwitch.log","w");
+	log_set_fp(logfile);
+    
+    log_debug("Initializing application...");
+
     Init_Services();
 
     if (run) {
         Menu_StartChoosing();
     }
 
+    log_debug("Finishing application...");
     Term_Services();
-
+    log_debug("Finished.");
     return 0;
 }

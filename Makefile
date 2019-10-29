@@ -9,6 +9,8 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITPRO)/libnx/switch_rules
 
+TOOL_PREFIX := aarch64-none-elf-
+
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -74,7 +76,7 @@ LIBS    :=  -lstdc++fs -lSDL2_ttf -lSDL2_image -lpng -ljpeg `sdl2-config --libs`
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(LIBNX)
+LIBDIRS	:= $(PORTLIBS) $(LIBNX) $(CURDIR)/mupdf
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -163,7 +165,7 @@ ifneq ($(ROMFS),)
 	export NROFLAGS += --romfsdir=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: $(BUILD) clean all
+.PHONY: $(BUILD) clean all mupdf
 
 #---------------------------------------------------------------------------------
 all: $(BUILD)
@@ -181,6 +183,33 @@ else
 	@rm -fr $(BUILD) $(TARGET).nsp $(TARGET).nso $(TARGET).npdm $(TARGET).elf
 endif
 
+#---------------------------------------------------------------------------------
+mupdf-clean:
+	@echo cleaning mupdf ...
+	@$(MAKE) -C $(CURDIR)/mupdf clean
+
+#---------------------------------------------------------------------------------
+mupdf:
+	@echo Building mupdf ...
+	@sh /opt/devkitpro/switchvars.sh
+	$(MAKE) -e -C $(CURDIR)/mupdf \
+CC=$(TOOL_PREFIX)gcc \
+CXX=$(TOOL_PREFIX)g++ \
+LD=$(TOOL_PREFIX)ld \
+AR=$(TOOL_PREFIX)ar \
+RANLIB=$(TOOL_PREFIX)ranlib \
+"USE_SYSTEM_FREETYPE=yes \
+USE_SYSTEM_HARFBUZZ=no \
+USE_SYSTEM_JBIG2DEC=no \
+USE_SYSTEM_JPEGXR=no \
+USE_SYSTEM_LCMS2=no \
+USE_SYSTEM_LIBJPEG=yes \
+USE_SYSTEM_MUJS=no \
+USE_SYSTEM_OPENJPEG=no \
+USE_SYSTEM_ZLIB=no" \
+libs
+	@mkdir -p mupdf/lib
+	@cp -f mupdf/build/release/*.a mupdf/lib
 
 #---------------------------------------------------------------------------------
 else
